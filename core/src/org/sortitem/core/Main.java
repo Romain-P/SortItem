@@ -13,28 +13,30 @@ public class Main extends JFrame {
     private final Generator generator;
 
     private final JPanel content;
-    private final JLabel lblNpcId;
-    private final JTextField textField;
+    private final JTextField textField, next;
     private final JSeparator separator;
     private final JButton btnGenerate, btnClear;
-    private final JTextArea data;
-    private final JTextArea generated;
+    private final JTextArea data, generated;
     private final JScrollPane sdata, sgenerated;
-    private final JLabel copyrights;
+    private final JLabel copyrights, lblNext, lblNpcId;
+    private final JCheckBox box;
 
     public Main() {
         this.generator = new Generator(this);
         this.content = new JPanel();
         this.lblNpcId = new JLabel("Npc ID");
         this.textField = new JTextField();
+        this.next = new JTextField();
         this.separator = new JSeparator();
         this.btnGenerate = new JButton("Generate");
+        this.lblNext = new JLabel("Next Slot");
         this.generated = new JTextArea();
         this.data = new JTextArea();
         this.sdata = new JScrollPane();
         this.sgenerated = new JScrollPane();
         this.copyrights = new JLabel("http://github.com/romain-p");
-        btnClear = new JButton("Clear");
+        this.btnClear = new JButton("Clear");
+        this.box = new JCheckBox("SET Mode");
     }
 
     public static void main(String[] args) {
@@ -56,16 +58,19 @@ public class Main extends JFrame {
         content.setLayout(null);
 
         //content
-        lblNpcId.setBounds(496, 44, 40, 14);
+        lblNpcId.setBounds(496, 73, 40, 14);
         content.add(lblNpcId);
+
+        lblNext.setBounds(496, 25, 65, 14);
+        content.add(lblNext);
 
         separator.setBounds(24, 156, 537, 2);
         content.add(separator);
 
-        btnGenerate.setBounds(475, 93, 89, 23);
+        btnGenerate.setBounds(475, 122, 89, 23);
         content.add(btnGenerate);
 
-        textField.setBounds(475, 62, 86, 20);
+        textField.setBounds(475, 91, 86, 20);
         content.add(textField);
         textField.setColumns(10);
 
@@ -93,6 +98,13 @@ public class Main extends JFrame {
         btnClear.setBounds(24, 326, 89, 23);
         content.add(btnClear);
 
+        next.setColumns(10);
+        next.setText("0");
+        next.setBounds(475, 43, 86, 20);
+        content.add(next);
+
+        box.setBounds(475, 326, 97, 23);
+        content.add(box);
         //end
 
         setResizable(false);
@@ -139,5 +151,13 @@ public class Main extends JFrame {
 
     public JTextField getTextField() {
         return textField;
+    }
+
+    public JTextField getNext() {
+        return this.next;
+    }
+
+    public boolean selected() {
+        return box.isSelected();
     }
 }

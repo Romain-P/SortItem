@@ -7,43 +7,87 @@ import javax.swing.*;
  */
 public class Generator {
     private final Main main;
+    private int lastNpc;
+
+    private int swap;
 
     public Generator(Main main) {
         this.main = main;
+        this.lastNpc = 0;
+        this.swap = 1;
     }
 
     public void generateLines() {
         String[] items = main.getData().getText().split(";");
         JTextArea sql = main.getGenerated();
-        int count = 0, npc = Integer.parseInt(main.getTextField().getText());
+        StringBuilder builder = new StringBuilder();
 
-        if(sql.getText().length() > 0) {
+        boolean sets = main.selected();
+
+        int npc = Integer.parseInt(main.getTextField().getText());
+        int count;
+
+        if (lastNpc != npc && lastNpc != 0) {
+            main.getNext().setText("1");
+            if(!sql.getText().isEmpty())
+                builder.append(";");
+            count = 0;
+            swap = 1;
+        } else {
+           count = Integer.parseInt(main.getNext().getText()) - 1;
+            if (sets) count++;
+        }
+
+        if(!sql.getText().isEmpty()) {
             sql.setText(sql.getText().substring(0, sql.getText().length()-1));
         }
 
-        StringBuilder builder = new StringBuilder();
-        boolean first = sql.getText().isEmpty();
+        boolean first = sql.getText().isEmpty()
+                || lastNpc != npc;
+
+        int slot = 0;
 
         for(String item: items) {
             String[] data = item.split(",");
             int id = Integer.parseInt(data[0]);
-            int slot;
 
             try {
                 slot = Integer.parseInt(data[1]);
             } catch(Exception e) {
-                slot = (count = count + 1);
+                if (sets) {
+                    builder.append(getTemplate(!first, npc, count, id));
+
+                    if (swap < 5) {
+                        count = count+2;
+                        swap++;
+                    } else if(swap == 5) {
+                        count = count-7;
+                        swap++;
+                    } else if(swap < 10) {
+                        count = count+2;
+                        swap++;
+                    } else if(swap == 10) {
+                        swap = 1;
+                        count++;
+                    }
+                } else {
+                    slot = count==10?slot+1:slot+2;
+                }
             }
 
-            builder.append(getTemplate(!first, id, slot, npc));
+            if (!sets) builder.append(getTemplate(!first, npc, slot, id));
 
             if (first) first = !first;
         }
 
         sql.setText(sql.getText() + builder.toString() + ";");
+        lastNpc = npc;
+
+        int val = sets ? count:count+1;
+        main.getNext().setText(String.valueOf((val)));
     }
 
-    private String getTemplate(boolean full, int item, int slot, int npc) {
+    private String getTemplate(boolean full, int npc, int slot, int item) {
         String request = !full
                 ? "INSERT INTO `world`.`npc_vendor` " +
                 "(`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `VerifiedBuild`) " +
